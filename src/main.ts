@@ -43,6 +43,12 @@ function getEffectiveBasename(props: any): string {
   if (typeof props.basename === 'string' && props.basename.length > 0) {
     return decodeURIComponent(props.basename.split('?')[0]);
   }
+  if (props.fileInfo?.name) {
+    return decodeURIComponent(props.fileInfo.name.split('?')[0]);
+  }
+  if (props.file?.name) {
+    return decodeURIComponent(props.file.name.split('?')[0]);
+  }
   const fallbacks = [props.filename, props.path, props.source, props.davPath, props.src];
   for (const fallback of fallbacks) {
     if (typeof fallback === 'string' && fallback.length > 0) {
@@ -58,6 +64,12 @@ function getEffectiveBasename(props: any): string {
 
 function getEffectiveUrl(props: any): string {
   let url = props.source || props.davPath || props.src;
+  if (!url && props.fileInfo?.url) {
+    url = props.fileInfo.url;
+  }
+  if (!url && props.file?.url) {
+    url = props.file.url;
+  }
   if (!url && props.filename) {
     url = props.filename;
   }
@@ -71,7 +83,7 @@ function getEffectiveUrl(props: any): string {
 
 const ViewerComponent: any = {
   name: 'CadViewerNext',
-  props: ['src', 'source', 'davPath', 'mime', 'filename', 'basename', 'active'],
+  props: ['src', 'source', 'davPath', 'mime', 'filename', 'basename', 'active', 'path', 'file', 'fileInfo'],
   data() {
     return {
       isLoading: true,
