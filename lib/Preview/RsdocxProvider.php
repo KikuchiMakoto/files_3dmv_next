@@ -29,23 +29,26 @@ class RsdocxProvider implements IProviderV2 {
             return null;
         }
 
-        $tempPath = null;
-        $createdTemp = false;
+        $tempPath = tempnam(sys_get_temp_dir(), 'rsd_thumb_');
+        if ($tempPath === false) {
+            return null;
+        }
 
         try {
-            $tempPath = $file->getLocalFile();
-            if (!$tempPath || !file_exists($tempPath)) {
-                $content = $file->getContent();
-                if (!$content) {
-                    return null;
-                }
-                $tempPath = tempnam(sys_get_temp_dir(), 'rsd_thumb_');
-                if ($tempPath === false) {
-                    return null;
-                }
-                file_put_contents($tempPath, $content);
-                $createdTemp = true;
+            $stream = $file->fopen('rb');
+            if (!is_resource($stream)) {
+                return null;
             }
+
+            $target = fopen($tempPath, 'wb');
+            if (!is_resource($target)) {
+                fclose($stream);
+                return null;
+            }
+
+            stream_copy_to_stream($stream, $target);
+            fclose($stream);
+            fclose($target);
 
             $zip = new ZipArchive();
             if ($zip->open($tempPath, ZipArchive::RDONLY) !== true) {
@@ -71,7 +74,7 @@ class RsdocxProvider implements IProviderV2 {
         } catch (\Throwable $e) {
             // Gracefully ignore corrupt archives
         } finally {
-            if ($createdTemp && $tempPath && file_exists($tempPath)) {
+            if (file_exists($tempPath)) {
                 @unlink($tempPath);
             }
         }

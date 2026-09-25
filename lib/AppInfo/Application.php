@@ -23,7 +23,7 @@ class Application extends App implements IBootstrap {
         // Register Preview Provider for RSDOCX native thumbnail extraction
         $context->registerPreviewProvider(
             RsdocxProvider::class,
-            '/application\/vnd\.spaceclaim\.rsdocx|application\/zip|application\/octet-stream/'
+            '/^(application\/vnd\.spaceclaim\.rsdocx|application\/vnd\.spaceclaim\.rsdoc|application\/octet-stream)(;+.*)*$/'
         );
     }
 

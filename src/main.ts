@@ -238,4 +238,47 @@ function registerViewerHandler() {
   }
 }
 
-registerViewerHandler();
+function registerFileActions() {
+  const oca = (window as any).OCA;
+  if (!oca?.Files?.fileActions) return;
+
+  supportedMimes.forEach((mime) => {
+    try {
+      oca.Files.fileActions.registerAction({
+        name: 'Open3D',
+        displayName: '3D表示',
+        mime,
+        permissions: 1, // OCP\Constants::PERMISSION_READ
+        iconClass: 'icon-category-multimedia',
+        actionHandler: (filename: string, context: any) => {
+          const fileInfo = context?.fileInfo || {
+            filename: (context?.dir ? (context.dir.endsWith('/') ? context.dir : context.dir + '/') : '') + filename,
+            basename: filename,
+            mime,
+          };
+          if (oca.Viewer?.open) {
+            oca.Viewer.open({
+              fileInfo,
+              list: [fileInfo],
+            });
+          }
+        },
+      });
+      oca.Files.fileActions.setDefault(mime, 'Open3D');
+    } catch (e) {
+      // ignore
+    }
+  });
+}
+
+function initApp() {
+  registerViewerHandler();
+  registerFileActions();
+}
+
+initApp();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', initApp);
+  window.addEventListener('load', initApp);
+}
