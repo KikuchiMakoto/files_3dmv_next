@@ -6,7 +6,16 @@ let occtInstance: any = null;
 
 export async function getOcct() {
   if (!occtInstance) {
-    occtInstance = await initOpenCascade();
+    const locateFile = (name: string) => {
+      if (typeof window !== 'undefined') {
+        const ocFilePath = (window as any).OC?.filePath?.('files_3dmv_next', 'js', name);
+        if (ocFilePath) return ocFilePath;
+        const ocRoot = (window as any).OC?.getRootPath?.() || '';
+        return `${ocRoot}/apps/files_3dmv_next/js/${name}`;
+      }
+      return name;
+    };
+    occtInstance = await initOpenCascade({ locateFile });
   }
   return occtInstance;
 }

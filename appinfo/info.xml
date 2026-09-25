@@ -19,7 +19,7 @@
     <bugs>https://github.com/kikuchimakoto/files_3dmv_next/issues</bugs>
     <repository type="git">https://github.com/kikuchimakoto/files_3dmv_next.git</repository>
     <dependencies>
-        <php min-version="8.1" max-version="8.4" />
+        <php min-version="8.1" />
         <nextcloud min-version="28" max-version="35" />
     </dependencies>
     <repair-steps>
