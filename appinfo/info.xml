@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>files_3dmv_next</id>
+    <name>3D Model Viewer Next</name>
+    <summary>Pure client-side 3D CAD &amp; Mesh model viewer with native RSDOCX, STEP, STL and PLY support</summary>
+    <description>Ultra-fast, minimal 3D CAD &amp; Mesh viewer for Nextcloud.
+- Supported CAD formats: STEP, STP, IGES, IGS, SpaceClaim / DesignSpark Mechanical (RSDOC, RSDOCX), Parasolid (X_B, X_T)
+- Supported Mesh formats: STL, PLY, OBJ, 3MF, glTF, GLB
+- Native SpaceClaim thumbnail extraction in Nextcloud file manager (fast 2ms preview)
+- Orthographic CAD projection, flat studio lighting, pure authentic colors without distortion
+- Client-side WebAssembly &amp; Web Worker acceleration with zero server GPU overhead</description>
+    <version>1.0.0</version>
+    <licence>MIT</licence>
+    <author>KikuchiMakoto</author>
+    <namespace>Files3dMvNext</namespace>
+    <category>multimedia</category>
+    <category>files</category>
+    <website>https://github.com/kikuchimakoto/files_3dmv_next</website>
+    <bugs>https://github.com/kikuchimakoto/files_3dmv_next/issues</bugs>
+    <repository type="git">https://github.com/kikuchimakoto/files_3dmv_next.git</repository>
+    <dependencies>
+        <php min-version="8.1" max-version="8.4" />
+        <nextcloud min-version="28" max-version="35" />
+    </dependencies>
+    <repair-steps>
+        <install>
+            <step>OCA\Files3dMvNext\Migration\MimeTypeInstall</step>
+        </install>
+        <uninstall>
+            <step>OCA\Files3dMvNext\Migration\MimeTypeUninstall</step>
+        </uninstall>
+    </repair-steps>
+</info>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="cubeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle border highlight -->
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#334155" stroke-width="4"/>
+
+  <!-- 3D Isometric CAD Layers / Cube -->
+  <g transform="translate(0, 8)">
+    <!-- Top Face -->
+    <polygon points="256 90, 390 167, 256 244, 122 167" fill="#38bdf8" opacity="0.95"/>
+    <polygon points="256 90, 390 167, 256 244, 122 167" fill="none" stroke="#e0f2fe" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- Left Face -->
+    <polygon points="122 167, 256 244, 256 397, 122 320" fill="#0284c7" opacity="0.9"/>
+    <polygon points="122 167, 256 244, 256 397, 122 320" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- Right Face -->
+    <polygon points="256 244, 390 167, 390 320, 256 397" fill="#0369a1" opacity="0.85"/>
+    <polygon points="256 244, 390 167, 390 320, 256 397" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linejoin="round"/>
+
+    <!-- CAD wireframe lines & coordinate axis accent -->
+    <circle cx="256" cy="244" r="8" fill="#f8fafc"/>
+    <circle cx="256" cy="90" r="6" fill="#38bdf8"/>
+    <circle cx="390" cy="167" r="6" fill="#38bdf8"/>
+    <circle cx="122" cy="167" r="6" fill="#38bdf8"/>
+    <circle cx="256" cy="397" r="6" fill="#0284c7"/>
+    <circle cx="122" cy="320" r="6" fill="#0284c7"/>
+    <circle cx="390" cy="320" r="6" fill="#0284c7"/>
+
+    <!-- Inner tech grid/facets effect -->
+    <line x1="256" y1="90" x2="256" y2="244" stroke="#e0f2fe" stroke-width="4" stroke-dasharray="8 6"/>
+  </g>
+</svg>
