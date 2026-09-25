@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Files3dMvNext\AppInfo;
 
 use OCA\Files3dMvNext\Preview\RsdocxProvider;
+use OCA\Files3dMvNext\Preview\StlProvider;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -24,6 +25,12 @@ class Application extends App implements IBootstrap {
         $context->registerPreviewProvider(
             RsdocxProvider::class,
             '/^(application\/vnd\.spaceclaim\.rsdocx|application\/vnd\.spaceclaim\.rsdoc|application\/octet-stream)(;+.*)*$/'
+        );
+
+        // Register Preview Provider for STL 3D isometric preview generation
+        $context->registerPreviewProvider(
+            StlProvider::class,
+            '/^(model\/stl|application\/sla|application\/octet-stream)(;+.*)*$/'
         );
     }
 

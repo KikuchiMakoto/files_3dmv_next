@@ -8,7 +8,8 @@ export async function parseModelUnified(
   fileName: string,
   onProgress?: (message: string, percent?: number) => void
 ): Promise<CadModel> {
-  const ext = fileName.split(".").pop()?.toLowerCase();
+  const cleanName = fileName.split("?")[0];
+  const ext = cleanName.split(".").pop()?.toLowerCase();
 
   switch (ext) {
     case "rsdocx":

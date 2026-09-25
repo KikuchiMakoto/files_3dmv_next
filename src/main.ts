@@ -3,12 +3,16 @@ import { parseModelUnified } from './lib/loaderDispatcher';
 
 const supportedMimes = [
   'model/stl',
+  'model/step',
+  'model/iges',
+  'model/obj',
   'model/ply',
   'model/3mf',
   'model/gltf+json',
   'model/gltf-binary',
   'application/sla',
   'application/step',
+  'application/x-step',
   'application/iges',
   'application/prs.wavefront-obj',
   'application/vnd.spaceclaim.rsdocx',
@@ -33,6 +37,36 @@ const supportedExtensions = [
   'x_b',
   'x_t',
 ];
+
+function getEffectiveBasename(props: any): string {
+  if (typeof props.basename === 'string' && props.basename.length > 0) {
+    return decodeURIComponent(props.basename.split('?')[0]);
+  }
+  const fallbacks = [props.filename, props.path, props.source, props.davPath, props.src];
+  for (const fallback of fallbacks) {
+    if (typeof fallback === 'string' && fallback.length > 0) {
+      const cleanFallback = fallback.split('?')[0].replace(/\/+$/, '');
+      const name = cleanFallback.split('/').pop();
+      if (name && name.includes('.')) {
+        return decodeURIComponent(name);
+      }
+    }
+  }
+  return 'model.stl';
+}
+
+function getEffectiveUrl(props: any): string {
+  let url = props.source || props.davPath || props.src;
+  if (!url && props.filename) {
+    url = props.filename;
+  }
+  if (!url && props.path) {
+    const webDavBase = (window as any).OC?.linkToRemoteBase?.('webdav') || '/remote.php/webdav';
+    const p = props.path;
+    url = `${webDavBase}${p.startsWith('/') ? '' : '/'}${encodeURI(p)}`;
+  }
+  return url || '';
+}
 
 const ViewerComponent: any = {
   name: 'CadViewerNext',
@@ -77,14 +111,8 @@ const ViewerComponent: any = {
       this.loadingMessage = '3D CAD モデルを取得中...';
 
       try {
-        let url = this.source || this.davPath || this.src;
-        const fileName = this.basename || this.filename || 'model.stl';
-
-        if (!url && this.path) {
-          const webDavBase = (window as any).OC?.linkToRemoteBase?.('webdav') || '/remote.php/webdav';
-          const p = this.path;
-          url = `${webDavBase}${p.startsWith('/') ? '' : '/'}${encodeURI(p)}`;
-        }
+        const url = getEffectiveUrl(this);
+        const fileName = getEffectiveBasename(this);
 
         if (!url) {
           throw new Error('ファイルの取得URLを解決できませんでした。');
