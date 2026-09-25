@@ -131,6 +131,11 @@ class StlProvider implements IProviderV2 {
             $image = new Image();
             $image->loadFromBase64(base64_encode($pngData));
             if ($image->valid()) {
+                $res = $image->resource();
+                if (is_resource($res) || $res instanceof \GdImage) {
+                    imagealphablending($res, false);
+                    imagesavealpha($res, true);
+                }
                 return $image;
             }
         } catch (\Throwable $e) {

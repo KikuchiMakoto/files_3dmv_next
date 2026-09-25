@@ -2,6 +2,7 @@ import { createCadViewport, CadViewportInstance } from './lib/cadViewportEngine'
 import { parseModelUnified } from './lib/loaderDispatcher';
 
 const supportedMimes = [
+  'application/octet-stream',
   'model/stl',
   'model/step',
   'model/iges',
@@ -279,16 +280,45 @@ function registerFileActions() {
         permissions: 1, // OCP\Constants::PERMISSION_READ
         iconClass: 'icon-category-multimedia',
         actionHandler: (filename: string, context: any) => {
-          const fileInfo = context?.fileInfo || {
-            filename: (context?.dir ? (context.dir.endsWith('/') ? context.dir : context.dir + '/') : '') + filename,
-            basename: filename,
-            mime,
+          const ext = filename.split('?')[0].split('.').pop()?.toLowerCase();
+          const mimeMap: Record<string, string> = {
+            rsdocx: 'application/vnd.spaceclaim.rsdocx',
+            rsdoc: 'application/vnd.spaceclaim.rsdoc',
+            stl: 'model/stl',
+            step: 'model/step',
+            stp: 'model/step',
+            iges: 'model/iges',
+            igs: 'model/iges',
+            ply: 'model/ply',
+            obj: 'model/obj',
+            '3mf': 'model/3mf',
+            gltf: 'model/gltf+json',
+            glb: 'model/gltf-binary',
+            x_b: 'application/x-b',
+            x_t: 'application/x-t',
           };
-          if (oca.Viewer?.open) {
-            oca.Viewer.open({
-              fileInfo,
-              list: [fileInfo],
-            });
+          const correctMime = (ext && mimeMap[ext]) ? mimeMap[ext] : mime;
+
+          const fileInfo = context?.fileInfo
+            ? { ...context.fileInfo, mime: correctMime }
+            : {
+                filename: (context?.dir ? (context.dir.endsWith('/') ? context.dir : context.dir + '/') : '') + filename,
+                basename: filename,
+                mime: correctMime,
+              };
+
+          if (oca.Viewer) {
+            if (typeof oca.Viewer.openWith === 'function') {
+              oca.Viewer.openWith('files_3dmv_next', {
+                fileInfo,
+                list: [fileInfo],
+              });
+            } else {
+              oca.Viewer.open({
+                fileInfo,
+                list: [fileInfo],
+              });
+            }
           }
         },
       });
