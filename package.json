@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && mkdir -p js css && cp dist/files_3dmv_next.js js/ && cp dist/files_3dmv_next.css css/ && cp node_modules/occt-import-js/dist/occt-import-js.wasm js/",
+    "build": "tsc -b && vite build && mkdir -p js css && cp dist/files_3dmv_next.js js/ && (cp dist/files_3dmv_next.css css/ 2>/dev/null || touch css/files_3dmv_next.css) && cp node_modules/occt-import-js/dist/occt-import-js.wasm js/",
     "preview": "vite preview"
   },
   "dependencies": {

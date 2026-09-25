@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/vite-env.d.ts","./src/lib/facetsParser.ts","./src/lib/loaderDispatcher.ts","./src/lib/meshLoaders.ts","./src/lib/rsdocxParser.ts","./src/lib/stepLoader.ts","./src/lib/types.ts"],"version":"5.9.3"}
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/lib/cadViewportEngine.ts","./src/lib/facetsParser.ts","./src/lib/loaderDispatcher.ts","./src/lib/meshLoaders.ts","./src/lib/rsdocxParser.ts","./src/lib/stepLoader.ts","./src/lib/types.ts"],"version":"5.9.3"}

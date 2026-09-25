@@ -1,4 +1,5 @@
-import Viewer from './views/Viewer.vue';
+import { createCadViewport, CadViewportInstance } from './lib/cadViewportEngine';
+import { parseModelUnified } from './lib/loaderDispatcher';
 
 const supportedMimes = [
   'model/stl',
@@ -33,28 +34,207 @@ const supportedExtensions = [
   'x_t',
 ];
 
+const ViewerComponent: any = {
+  name: 'CadViewerNext',
+  props: ['src', 'source', 'davPath', 'mime', 'filename', 'basename', 'active'],
+  data() {
+    return {
+      isLoading: true,
+      loadingMessage: '3D CAD モデルを取得中...',
+      error: null as string | null,
+    };
+  },
+  watch: {
+    active(this: any, val: boolean) {
+      if (val) {
+        this.start();
+      } else {
+        this.stop();
+      }
+    },
+  },
+  mounted(this: any) {
+    if (typeof this.doneLoading === 'function') {
+      this.doneLoading();
+    }
+    if (typeof this.updateHeightWidth === 'function') {
+      this.updateHeightWidth();
+    }
+    this.start();
+  },
+  beforeDestroy(this: any) {
+    this.stop();
+  },
+  methods: {
+    async start(this: any) {
+      if (this.viewport) return;
+      const mountPoint = this.$refs.mountPoint as HTMLElement;
+      if (!mountPoint) return;
+
+      this.viewport = createCadViewport(mountPoint);
+      this.isLoading = true;
+      this.error = null;
+      this.loadingMessage = '3D CAD モデルを取得中...';
+
+      try {
+        let url = this.source || this.davPath || this.src;
+        const fileName = this.basename || this.filename || 'model.stl';
+
+        if (!url && this.path) {
+          const webDavBase = (window as any).OC?.linkToRemoteBase?.('webdav') || '/remote.php/webdav';
+          const p = this.path;
+          url = `${webDavBase}${p.startsWith('/') ? '' : '/'}${encodeURI(p)}`;
+        }
+
+        if (!url) {
+          throw new Error('ファイルの取得URLを解決できませんでした。');
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`ダウンロードに失敗しました (Status: ${res.status})`);
+        }
+
+        this.loadingMessage = '幾何解析中...';
+        const buffer = await res.arrayBuffer();
+        const model = await parseModelUnified(buffer, fileName, (msg) => {
+          this.loadingMessage = msg;
+        });
+
+        if (this.viewport) {
+          this.viewport.updateBodies(model.bodies);
+        }
+        this.isLoading = false;
+      } catch (err: any) {
+        console.error('[files_3dmv_next]', err);
+        this.error = err?.message || String(err);
+        this.isLoading = false;
+      }
+    },
+    stop(this: any) {
+      if (this.viewport) {
+        (this.viewport as CadViewportInstance).dispose();
+        this.viewport = null;
+      }
+    },
+  },
+  render(h: any) {
+    const children: any[] = [
+      h('div', {
+        ref: 'mountPoint',
+        style: { width: '100%', height: '100%', position: 'relative' },
+      }),
+    ];
+
+    if (this.isLoading) {
+      children.push(
+        h(
+          'div',
+          {
+            style: {
+              position: 'absolute',
+              inset: '0',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              color: '#38bdf8',
+              fontFamily: 'monospace',
+              fontSize: '13px',
+              gap: '12px',
+              zIndex: '50',
+            },
+          },
+          [
+            h('div', {
+              style: {
+                width: '36px',
+                height: '36px',
+                border: '3px solid rgba(56, 189, 248, 0.2)',
+                borderTopColor: '#38bdf8',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              },
+            }),
+            h('div', this.loadingMessage),
+          ]
+        )
+      );
+    }
+
+    if (this.error) {
+      children.push(
+        h(
+          'div',
+          {
+            style: {
+              position: 'absolute',
+              inset: '0',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(15, 23, 42, 0.85)',
+              color: '#f87171',
+              fontFamily: 'monospace',
+              fontSize: '13px',
+              padding: '24px',
+              textAlign: 'center',
+              zIndex: '50',
+            },
+          },
+          [
+            h('div', { style: { fontWeight: 'bold', marginBottom: '8px' } }, '3D モデルの表示に失敗しました'),
+            h('div', { style: { color: '#94a3b8', fontSize: '11px' } }, this.error),
+          ]
+        )
+      );
+    }
+
+    return h(
+      'div',
+      {
+        class: 'files_3dmv_next-root',
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundColor: '#0f172a',
+        },
+      },
+      children
+    );
+  },
+};
+
 function registerViewerHandler() {
   const handler = {
     id: 'files_3dmv_next',
     group: '3d',
+    canCompare: false,
     mimes: supportedMimes,
-    component: Viewer,
-    match: (fileInfo: any) => {
-      if (!fileInfo) return false;
-      const name = (fileInfo.name || fileInfo.basename || fileInfo.path || '').toLowerCase();
-      const ext = name.split('.').pop();
-      return ext ? supportedExtensions.includes(ext) : false;
-    },
+    component: ViewerComponent,
   };
 
-  if (typeof (window as any).OCA !== 'undefined' && (window as any).OCA.Viewer) {
-    (window as any).OCA.Viewer.registerHandler(handler);
-  } else {
-    window.addEventListener('DOMContentLoaded', () => {
-      if ((window as any).OCA?.Viewer) {
-        (window as any).OCA.Viewer.registerHandler(handler);
+  const oca = (window as any).OCA;
+  if (oca?.Viewer) {
+    try {
+      if (!oca.Viewer.availableHandlers?.some((h: any) => h.id === handler.id)) {
+        oca.Viewer.registerHandler(handler);
       }
-    });
+    } catch (e: any) {
+      if (!e?.message?.includes('already registered')) {
+        console.warn('[files_3dmv_next] registerHandler failed:', e);
+      }
+    }
+  } else {
+    (window as any)._oca_viewer_handlers = (window as any)._oca_viewer_handlers || [];
+    if (!(window as any)._oca_viewer_handlers.some((h: any) => h.id === handler.id)) {
+      (window as any)._oca_viewer_handlers.push(handler);
+    }
   }
 }
 
