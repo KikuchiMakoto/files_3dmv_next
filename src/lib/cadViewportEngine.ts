@@ -195,7 +195,7 @@ export function createCadViewport(container: HTMLElement): CadViewportInstance {
         transparent: isSemiTransparent,
         opacity: baseOpacity,
         depthWrite: baseOpacity >= 0.95,
-        side: isSemiTransparent ? THREE.DoubleSide : THREE.FrontSide,
+        side: THREE.DoubleSide, // Always DoubleSide so STL/PLY meshes with inverted normals are never culled
         polygonOffset: true,
         polygonOffsetFactor: 1,
         polygonOffsetUnits: 1,
